@@ -68,19 +68,19 @@ export const updateScan = async (req, res, next) => {
     const { error, value } = updateScanValidator.validate(req.body);
     if (error) return res.status(422).json(error);
 
-    const updated = await ScanModel.findOneAndUpdate(
+    const updatedScan = await ScanModel.findOneAndUpdate(
       { _id: req.params.id },
       value,
       { new: true }
     );
 
-    if (!updated) {
+    if (!updatedScan) {
       return res.status(404).json({ message: "Scan not found" });
     }
 
     res.status(200).json({
       message: "Scan updated successfully",
-      data: updated,
+      data: updatedScan,
     });
   } catch (err) {
     next(err);
@@ -89,17 +89,17 @@ export const updateScan = async (req, res, next) => {
 
 export const deleteScan = async (req, res, next) => {
   try {
-    const deleted = await ScanModel.findOneAndDelete({
+    const deletedScan = await ScanModel.findOneAndDelete({
       _id: req.params.id,
     });
 
-    if (!deleted) {
+    if (!deletedScan) {
       return res.status(404).json({ message: "Scan not found" });
     }
 
     res.status(200).json({
       message: "Scan deleted successfully",
-      data: deleted,
+      data: deletedScan,
     });
   } catch (err) {
     next(err);

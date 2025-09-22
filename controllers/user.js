@@ -65,6 +65,7 @@ export const logInUser = async (req, res, next) => {
     res.json({
       message: "User logged in",
       accessToken: token,
+      user,
     });
   } catch (error) {
     next(error);
@@ -139,7 +140,7 @@ export const forgotPassword = async (req, res, next) => {
       text: `Click the link to reset your password: ${resetLink}`,
     });
 
-    res.json({ message: "Password reset link sent" });
+    res.json({ message: "Password reset link sent", user });
   } catch (error) {
     next(error);
   }
@@ -161,7 +162,7 @@ export const resetPassword = async (req, res, next) => {
     user.password = hashedPassword;
     await user.save();
 
-    res.json({ message: "Password reset successfully" });
+    res.json({ message: "Password reset successfully", user });
   } catch (error) {
     next(error);
   }

@@ -80,13 +80,13 @@ export const updatePackage = async (req, res, next) => {
       return res.status(422).json(error);
     }
 
-    const updated = await PackageModel.findOneAndUpdate(
+    const updatedpkg = await PackageModel.findOneAndUpdate(
       { _id: req.params.id, user: req.auth.id },
       value,
       { new: true }
     );
 
-    if (!updated) {
+    if (!updatedpkg) {
       return res
         .status(404)
         .json({ message: "Package not found or not authorized" });
@@ -94,7 +94,7 @@ export const updatePackage = async (req, res, next) => {
 
     res.status(200).json({
       message: "Package updated successfully",
-      data: updated,
+      data: updatedpkg,
     });
   } catch (err) {
     next(err);
@@ -104,12 +104,12 @@ export const updatePackage = async (req, res, next) => {
 // ✅ Delete Package
 export const deletePackage = async (req, res, next) => {
   try {
-    const deleted = await PackageModel.findOneAndDelete({
+    const deletedpkg = await PackageModel.findOneAndDelete({
       _id: req.params.id,
       user: req.auth.id,
     });
 
-    if (!deleted) {
+    if (!deletedpkg) {
       return res
         .status(404)
         .json({ message: "Package not found or not authorized" });
@@ -117,7 +117,7 @@ export const deletePackage = async (req, res, next) => {
 
     res.status(200).json({
       message: "Package deleted successfully",
-      data: deleted,
+      data: deletedpkg,
     });
   } catch (err) {
     next(err);
