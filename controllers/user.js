@@ -31,7 +31,7 @@ export const registerUser = async (req, res, next) => {
     });
 
          const emailContent = `
-                <p>Hi ${user.firstName}<p>
+                <p>Hi ${user.name}<p>
                             <p>Account created successfully on ${new Date().toDateString()} as a ${user.role}.</p>
                             <p>LogIn to interract with us. Click the link below.</p>
                             <a style="font-size: 14px;" href="${process.env.CLIENT_URL}/login">${process.env.CLIENT_URL}/login</a>`
