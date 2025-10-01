@@ -30,12 +30,19 @@ export const registerUser = async (req, res, next) => {
       password: hashedPassword,
     });
 
-    await mailTransporter.sendMail({
-      to: value.email,
-      subject: "User Registration",
-      text: "Account registered successfully",
-    });
-
+         const emailContent = `
+                <p>Hi ${user.firstName}<p>
+                            <p>Account created successfully on ${new Date().toDateString()} as a ${user.role}.</p>
+                            <p>LogIn to interract with us. Click the link below.</p>
+                            <a style="font-size: 14px;" href="${process.env.CLIENT_URL}/login">${process.env.CLIENT_URL}/login</a>`
+                // Send professional a confirmation email
+                await mailTransporter.sendMail({
+                    from: `Castor Care Ghana <${process.env.EMAIL_USER}`,
+                    to: value.email,
+                    subject: "User Registration",
+                    replyTo: 'info@castorcareghana.com',
+                    html: registerEmailTemplate(emailContent)
+                });
     res.status(201).json({ message: "Registered user!", user });
   } catch (error) {
     next(error);
