@@ -6,6 +6,9 @@ import farmerRouter from './routes/farmer.js';
 import batchRouter from './routes/batch.js';
 import packageRouter from './routes/package.js';
 import scanRouter from './routes/scan.js';
+import { connectRabbitMQ } from "./utils/rabbitmq.js";
+
+connectRabbitMQ();
 
 await mongoose.connect(process.env.MONGO_URI)
 const app = express();

@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@reis/mongoose-to-json": "^3.0.0",
+    "amqplib": "^0.10.9",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",

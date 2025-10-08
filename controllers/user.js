@@ -9,6 +9,8 @@ import {
 } from "../validators/user.js";
 import { mailTransporter } from "../utils/mail.js";
 import { FarmerModel } from "../models/farmer.js";
+import { getChannel } from "../utils/rabbitmq.js";
+import { registerEmailTemplate } from "../utils/emailTemplate.js";
 
 // ✅ Register User
 export const registerUser = async (req, res, next) => {
@@ -36,13 +38,24 @@ export const registerUser = async (req, res, next) => {
                             <p>LogIn to interract with us. Click the link below.</p>
                             <a style="font-size: 14px;" href="${process.env.CLIENT_URL}/login">${process.env.CLIENT_URL}/login</a>`
                 // Send professional a confirmation email
-                await mailTransporter.sendMail({
-                    from: `Castor Care Ghana <${process.env.EMAIL_USER}>`,
-                    to: value.email,
-                    subject: "User Registration",
-                    replyTo: 'info@castorcareghana.com',
-                    html: registerEmailTemplate(emailContent)
-                });
+                // await mailTransporter.sendMail({
+                //     from: `Castor Care Ghana <${process.env.EMAIL_USER}>`,
+                //     to: value.email,
+                //     subject: "User Registration",
+                //     replyTo: 'info@castorcareghana.com',
+                //     html: registerEmailTemplate(emailContent)
+                // });
+    const channel = getChannel();
+    await channel.assertQueue("emailQueue");
+    channel.sendToQueue(
+      "emailQueue",
+      Buffer.from(JSON.stringify({
+        to: value.email,
+        subject: "User Registration",
+        html: registerEmailTemplate(emailContent),
+      }))
+    );
+
     res.status(201).json({ message: "Registered user!", user });
   } catch (error) {
     next(error);
