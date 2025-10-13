@@ -32,7 +32,7 @@ export const getBatches = async (req, res, next) => {
       .skip(Number(skip))
       .populate("farmer");
 
-    res.status(200).json({ message: "Batches retrieved", batches });
+    res.status(200).json(batches);
   } catch (err) {
     next(err);
   }
