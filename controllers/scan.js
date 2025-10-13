@@ -24,8 +24,7 @@ export const createScan = async (req, res, next) => {
     const scan = await ScanModel.create(value);
 
     res.status(201).json({
-      message: "Scan recorded successfully",
-      data: scan,
+      message: "Scan recorded successfully", scan
     });
   } catch (err) {
     next(err);
@@ -98,8 +97,7 @@ export const deleteScan = async (req, res, next) => {
     }
 
     res.status(200).json({
-      message: "Scan deleted successfully",
-      data: deletedScan,
+      message: "Scan deleted successfully", deletedScan,
     });
   } catch (err) {
     next(err);

@@ -94,7 +94,7 @@ export const updatePackage = async (req, res, next) => {
 
     res.status(200).json({
       message: "Package updated successfully",
-      data: updatedpkg,
+       updatedpkg,
     });
   } catch (err) {
     next(err);
@@ -117,7 +117,7 @@ export const deletePackage = async (req, res, next) => {
 
     res.status(200).json({
       message: "Package deleted successfully",
-      data: deletedpkg,
+     deletedpkg,
     });
   } catch (err) {
     next(err);

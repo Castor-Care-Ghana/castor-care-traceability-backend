@@ -15,7 +15,7 @@ export const createBatch = async (req, res, next) => {
       user: req.auth.id, // only if you want direct ownership
     });
 
-    res.status(201).json({ message: "Batch created successfully", data: batch });
+    res.status(201).json({ message: "Batch created successfully", batch });
   } catch (err) {
     next(err);
   }
@@ -32,7 +32,7 @@ export const getBatches = async (req, res, next) => {
       .skip(Number(skip))
       .populate("farmer");
 
-    res.status(200).json({ message: "Batches retrieved", data: batches });
+    res.status(200).json({ message: "Batches retrieved", batches });
   } catch (err) {
     next(err);
   }
@@ -47,7 +47,7 @@ export const getBatch = async (req, res, next) => {
       return res.status(404).json({ message: "Batch not found" });
     }
 
-    res.status(200).json({ message: "Batch retrieved", data: batch });
+    res.status(200).json({ message: "Batch retrieved", batch });
   } catch (err) {
     next(err);
   }
@@ -76,7 +76,7 @@ export const updateBatch = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "Batch updated successfully", data: updatedBatch });
+      .json({ message: "Batch updated successfully", updatedBatch });
   } catch (err) {
     next(err);
   }
@@ -98,7 +98,7 @@ export const deleteBatch = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "Batch deleted successfully", data: deletedBatch });
+      .json({ message: "Batch deleted successfully", deletedBatch });
   } catch (err) {
     next(err);
   }

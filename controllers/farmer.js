@@ -89,7 +89,7 @@ export const deleteFarmer = async (req, res, next) => {
         if (!farmer) {
             return res.status(404).json({ message: "Farmer not found or not authorized" });
         }
-        res.status(200).json({ message: "Farmer deleted successfully", data: farmer });
+        res.status(200).json({ message: "Farmer deleted successfully",  farmer });
     } catch (err) {
         next(err);
     }
