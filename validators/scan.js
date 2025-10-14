@@ -3,7 +3,7 @@ import Joi from "joi";
 export const createScanValidator = Joi.object({
   package: Joi.string().required(),
   scannedBy: Joi.string().valid("consumer", "distributor", "retailer", "castor staff").required(),
-  location: Joi.string().required(),
+  location: Joi.string().optional(),
   deviceInfo: Joi.string().optional(),
   user: Joi.string().optional(),
 });

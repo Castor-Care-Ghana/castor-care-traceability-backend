@@ -13,7 +13,7 @@ const ScanSchema = new Schema(
     },
     location: {
       type: String, // GhanaPost GPS where scan happened
-      required: true,
+      required: false,
     },
     user: {
       type: Schema.Types.ObjectId,

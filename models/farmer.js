@@ -18,6 +18,9 @@ const farmerSchema = new Schema(
     email: {
       type: String
     },
+    idNumber: {
+      type: String,
+    },
     address: {
       type: String, // descriptive physical address
     },
