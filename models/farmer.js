@@ -12,9 +12,15 @@ const farmerSchema = new Schema(
       type: String,
       
     },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
+      default: "other",
+    },
     phone: {
       type: String,
     },
+
     email: {
       type: String
     },

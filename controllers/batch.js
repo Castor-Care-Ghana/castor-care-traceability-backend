@@ -57,48 +57,42 @@ export const getBatch = async (req, res, next) => {
 export const updateBatch = async (req, res, next) => {
   try {
     const { error, value } = updateBatchValidator.validate(req.body);
+    if (error) return res.status(422).json(error);
 
-    if (error) {
-      return res.status(422).json(error);
+    const query =
+      req.auth.role === "admin"
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: req.auth.id };
+
+    const updateBatch = await BatchModel.findOneAndUpdate(query, value, {
+      new: true,
+    });
+
+    if (!updateBatch) {
+      return res.status(404).json("Batch not found or not authorized");
     }
 
-    const updatedBatch = await BatchModel.findOneAndUpdate(
-      { _id: req.params.id, user: req.auth.id }, // optional ownership check
-      value,
-      { new: true }
-    );
-
-    if (!updatedBatch) {
-      return res
-        .status(404)
-        .json({ message: "Batch not found or not authorized" });
-    }
-
-    res
-      .status(200)
-      .json({ message: "Batch updated successfully", updatedBatch });
-  } catch (err) {
-    next(err);
+    res.status(200).json(updateBatch);
+  } catch (error) {
+    next(error);
   }
 };
 
-// Delete batch
 export const deleteBatch = async (req, res, next) => {
   try {
-    const deletedBatch = await BatchModel.findOneAndDelete({
-      _id: req.params.id,
-      user: req.auth.id,
-    });
+    const query =
+      req.auth.role === "admin"
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: req.auth.id };
 
-    if (!deletedBatch) {
+    const batch = await BatchModel.findOneAndDelete(query);
+    if (!batch) {
       return res
         .status(404)
         .json({ message: "Batch not found or not authorized" });
     }
 
-    res
-      .status(200)
-      .json({ message: "Batch deleted successfully", deletedBatch });
+    res.status(200).json({ message: "Batch deleted successfully", batch });
   } catch (err) {
     next(err);
   }

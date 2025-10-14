@@ -101,7 +101,7 @@ export const deleteFarmer = async (req, res, next) => {
     res
       .status(200)
       .json({ message: "Farmer deleted successfully", farmer });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };

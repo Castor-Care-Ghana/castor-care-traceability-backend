@@ -73,53 +73,44 @@ export const getPackage = async (req, res, next) => {
 // ✅ Update Package
 export const updatePackage = async (req, res, next) => {
   try {
-    const { error, value } = updatePackageValidator.validate({
-      ...req.body,
+    const { error, value } = updatePackageValidator.validate(req.body);
+    if (error) return res.status(422).json(error);
+
+    const query =
+      req.auth.role === "admin"
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: req.auth.id };
+
+    const updatePackage = await PackageModel.findOneAndUpdate(query, value, {
+      new: true,
     });
-    if (error) {
-      return res.status(422).json(error);
+
+    if (!updatePackage) {
+      return res.status(404).json("Package not found or not authorized");
     }
 
-    const updatedpkg = await PackageModel.findOneAndUpdate(
-      { _id: req.params.id, user: req.auth.id },
-      value,
-      { new: true }
-    );
-
-    if (!updatedpkg) {
-      return res
-        .status(404)
-        .json({ message: "Package not found or not authorized" });
-    }
-
-    res.status(200).json({
-      message: "Package updated successfully",
-       updatedpkg,
-    });
-  } catch (err) {
-    next(err);
+    res.status(200).json(updatePackage);
+  } catch (error) {
+    next(error);
   }
 };
 
-// ✅ Delete Package
 export const deletePackage = async (req, res, next) => {
   try {
-    const deletedpkg = await PackageModel.findOneAndDelete({
-      _id: req.params.id,
-      user: req.auth.id,
-    });
+    const query =
+      req.auth.role === "admin"
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: req.auth.id };
 
-    if (!deletedpkg) {
+    const pkg = await PackageModel.findOneAndDelete(query);
+    if (!pkg) {
       return res
         .status(404)
         .json({ message: "Package not found or not authorized" });
     }
 
-    res.status(200).json({
-      message: "Package deleted successfully",
-     deletedpkg,
-    });
-  } catch (err) {
-    next(err);
+    res.status(200).json({ message: "Package deleted successfully", pkg });
+  } catch (error) {
+    next(error);
   }
 };

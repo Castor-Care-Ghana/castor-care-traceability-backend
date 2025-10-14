@@ -67,39 +67,42 @@ export const updateScan = async (req, res, next) => {
     const { error, value } = updateScanValidator.validate(req.body);
     if (error) return res.status(422).json(error);
 
-    const updatedScan = await ScanModel.findOneAndUpdate(
-      { _id: req.params.id },
-      value,
-      { new: true }
-    );
+    const query =
+      req.auth.role === "admin"
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: req.auth.id };
 
-    if (!updatedScan) {
-      return res.status(404).json({ message: "Scan not found" });
+    const updateScan = await ScanModel.findOneAndUpdate(query, value, {
+      new: true,
+    });
+
+    if (!updateScan) {
+      return res.status(404).json("Scan not found or not authorized");
     }
 
-    res.status(200).json({
-      message: "Scan updated successfully",
-      data: updatedScan,
-    });
-  } catch (err) {
-    next(err);
+    res.status(200).json(updateScan);
+  } catch (error) {
+    next(error);
   }
 };
 
 export const deleteScan = async (req, res, next) => {
   try {
-    const deletedScan = await ScanModel.findOneAndDelete({
-      _id: req.params.id,
-    });
+    const query =
+      req.auth.role === "admin"
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: req.auth.id };
 
-    if (!deletedScan) {
-      return res.status(404).json({ message: "Scan not found" });
+    const scan = await ScanModel.findOneAndDelete(query);
+    if (!scan) {
+      return res
+        .status(404)
+        .json({ message: "Scan not found or not authorized" });
     }
 
-    res.status(200).json({
-      message: "Scan deleted successfully", deletedScan,
-    });
-  } catch (err) {
-    next(err);
+    res.status(200).json({ message: "Scan deleted successfully", scan });
+  } catch (error) {
+    next(error);
   }
 };
+

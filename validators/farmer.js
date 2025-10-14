@@ -3,6 +3,7 @@ import Joi from "joi";
 export const registerFarmerValidator = Joi.object({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
+    gender: Joi.string().valid("male", "female", "other").required(),
     phone: Joi.string(),
     email: Joi.string().email(),
     idNumber: Joi.string(),
@@ -16,6 +17,7 @@ export const registerFarmerValidator = Joi.object({
 export const updateFarmerValidator = Joi.object({
     firstName: Joi.string(),
     lastName: Joi.string(),
+    gender: Joi.string().valid("male", "female", "other"),
     phone: Joi.string(),
     email: Joi.string().email(),
     idNumber: Joi.string(),
