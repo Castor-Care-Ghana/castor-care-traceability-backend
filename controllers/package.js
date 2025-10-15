@@ -42,7 +42,7 @@ export const createPackage = async (req, res, next) => {
 // ✅ Get all Packages
 export const getPackages = async (req, res, next) => {
   try {
-    const { filter = "{}", sort = "{}", limit = 10, skip = 0 } = req.query;
+    const { filter = "{}", sort = "{}", limit = 10000, skip = 0 } = req.query;
 
     const packages = await PackageModel.find(JSON.parse(filter))
       .sort(JSON.parse(sort))

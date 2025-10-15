@@ -34,7 +34,7 @@ export const createScan = async (req, res, next) => {
 
 export const getScans = async (req, res, next) => {
   try {
-    const { filter = "{}", sort = "{}", limit = 10, skip = 0 } = req.query;
+    const { filter = "{}", sort = "{}", limit = 10000, skip = 0 } = req.query;
 
     const scans = await ScanModel.find(JSON.parse(filter))
       .populate("package")

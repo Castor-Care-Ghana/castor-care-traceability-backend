@@ -25,7 +25,7 @@ export const registerFarmer = async (req, res, next) => {
 
 export const getFarmers = async (req, res, next) => {
     try {
-        const { filter = "{}", sort = "{}", limit = 10, skip = 0 } = req.query;
+        const { filter = "{}", sort = "{}", limit = 10000, skip = 0 } = req.query;
         const farmers = await FarmerModel
         .find(JSON.parse(filter))
         .sort(JSON.parse(sort))

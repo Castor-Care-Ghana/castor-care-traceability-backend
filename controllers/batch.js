@@ -24,7 +24,7 @@ export const createBatch = async (req, res, next) => {
 // Get all batches
 export const getBatches = async (req, res, next) => {
   try {
-    const { filter = "{}", sort = "{}", limit = 10, skip = 0 } = req.query;
+    const { filter = "{}", sort = "{}", limit = 10000, skip = 0 } = req.query;
 
     const batches = await BatchModel.find(JSON.parse(filter))
       .sort(JSON.parse(sort))
