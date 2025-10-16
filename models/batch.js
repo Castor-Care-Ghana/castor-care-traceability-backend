@@ -62,7 +62,7 @@ const batchSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     farmer: { type: Schema.Types.ObjectId, ref: "Farmer", required: true },
-    cropType: { type: String, required: true, trim: true },
+    crop: { type: String, required: true, trim: true },
     quantity: { type: Number, required: true, min: 1 },
     collectionLocation: { type: String, required: true, trim: true },
     latitude: { type: Number },

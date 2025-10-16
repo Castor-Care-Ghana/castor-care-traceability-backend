@@ -1,8 +1,7 @@
 import Joi from "joi";
 
 export const createBatchValidator = Joi.object({
-  farmer: Joi.string().required(),
-  cropType: Joi.string().required(),
+  crop: Joi.string().required(),
   quantity: Joi.number().min(1).required(),
   // gpsAddress: Joi.string().required(),
   collectionLocation: Joi.string().required(),
@@ -11,8 +10,7 @@ export const createBatchValidator = Joi.object({
 });
 
 export const updateBatchValidator = Joi.object({
-  farmer: Joi.string().optional(),
-  cropType: Joi.string().optional(),
+  crop: Joi.string().optional(),
   quantity: Joi.number().min(1).optional(),
   gpsAddress: Joi.string().optional(),
   collectionLocation: Joi.string().optional(),
