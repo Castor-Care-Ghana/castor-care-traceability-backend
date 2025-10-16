@@ -38,7 +38,7 @@ export const getScans = async (req, res, next) => {
 
     const scans = await ScanModel.find(JSON.parse(filter))
       .populate("package")
-      .populate("user")
+      .populate("user", "-password")
       .sort(JSON.parse(sort))
       .limit(Number(limit))
       .skip(Number(skip));
@@ -53,7 +53,7 @@ export const getScan = async (req, res, next) => {
   try {
     const scan = await ScanModel.findById(req.params.id)
       .populate("package")
-      .populate("user");
+      .populate("user", "-password");
     if (!scan) return res.status(404).json({ message: "Scan not found" });
 
     res.status(200).json(scan);

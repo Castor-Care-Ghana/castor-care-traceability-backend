@@ -31,7 +31,7 @@ export const getFarmers = async (req, res, next) => {
         .sort(JSON.parse(sort))
         .limit(limit)
         .skip(skip)
-        .populate("user");
+        .populate("user", "-password");
         res.status(200).json(farmers);
     } catch (error) {
         next(error);
@@ -40,7 +40,7 @@ export const getFarmers = async (req, res, next) => {
 
 export const getFarmer = async(req,res, next) => {
     try {
-        const farmer =await FarmerModel.findById(req.params.id);
+        const farmer =await FarmerModel.findById(req.params.id).populate("user", "-password");
         if (!farmer) {
             return res.status(404).json({ message: "Farmer not found" });
         }

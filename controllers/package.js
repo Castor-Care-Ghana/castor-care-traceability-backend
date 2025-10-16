@@ -48,7 +48,7 @@ export const getPackages = async (req, res, next) => {
       .sort(JSON.parse(sort))
       .limit(Number(limit))
       .skip(Number(skip))
-      .populate("user")
+      .populate("user", "-password")
       .populate("batch");
 
     res.status(200).json(packages);
@@ -60,7 +60,7 @@ export const getPackages = async (req, res, next) => {
 // ✅ Get single Package by ID
 export const getPackage = async (req, res, next) => {
   try {
-    const pkg = await PackageModel.findById(req.params.id);
+    const pkg = await PackageModel.findById(req.params.id).populate("user", "-password").populate("batch");
     if (!pkg) {
       return res.status(404).json({ message: "Package not found" });
     }

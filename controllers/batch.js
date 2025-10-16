@@ -30,7 +30,8 @@ export const getBatches = async (req, res, next) => {
       .sort(JSON.parse(sort))
       .limit(Number(limit))
       .skip(Number(skip))
-      .populate("farmer");
+      .populate("farmer")
+      .populate("user" , "-password");
 
     res.status(200).json(batches);
   } catch (err) {
@@ -41,7 +42,7 @@ export const getBatches = async (req, res, next) => {
 // Get single batch
 export const getBatch = async (req, res, next) => {
   try {
-    const batch = await BatchModel.findById(req.params.id).populate("farmer");
+    const batch = await BatchModel.findById(req.params.id).populate("farmer").populate("user", "-password");
 
     if (!batch) {
       return res.status(404).json({ message: "Batch not found" });
