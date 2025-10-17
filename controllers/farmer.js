@@ -53,20 +53,17 @@ export const getFarmer = async(req,res, next) => {
 
 export const updateFarmer = async (req, res, next) => {
   try {
-    const { error, value } = updateFarmerValidator.validate(req.body);
-    if (error) return res.status(422).json(error);
-
     const farmer = await FarmerModel.findById(req.params.id);
     if (!farmer) return res.status(404).json({ message: "Farmer not found" });
 
-    if (req.auth.role !== "admin" && String(farmer.user) !== String(req.auth.id)) {
-      return res.status(403).json({ message: "Not authorized" });
+    const isAdmin = req.auth?.role?.toLowerCase() === "admin";
+    if (!isAdmin && String(farmer.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized to update this farmer" });
     }
 
-    Object.assign(farmer, value);
-    await farmer.save();
-
-    res.status(200).json(farmer);
+    Object.assign(farmer, req.body);
+    const updated = await farmer.save();
+    res.status(200).json(updated);
   } catch (error) {
     next(error);
   }
@@ -77,14 +74,14 @@ export const deleteFarmer = async (req, res, next) => {
     const farmer = await FarmerModel.findById(req.params.id);
     if (!farmer) return res.status(404).json({ message: "Farmer not found" });
 
-    if (req.auth.role !== "admin" && String(farmer.user) !== String(req.auth.id)) {
-      return res.status(403).json({ message: "Not authorized" });
+    const isAdmin = req.auth?.role?.toLowerCase() === "admin";
+    if (!isAdmin && String(farmer.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized to delete this farmer" });
     }
 
     await farmer.deleteOne();
-
-    res.status(200).json({ message: "Farmer deleted successfully", farmer });
-  } catch (err) {
-    next(err);
+    res.status(200).json({ message: "Farmer deleted successfully" });
+  } catch (error) {
+    next(error);
   }
 };

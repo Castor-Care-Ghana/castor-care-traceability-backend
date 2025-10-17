@@ -70,22 +70,20 @@ export const getPackage = async (req, res, next) => {
   }
 };
 
+// ✅ Update Package
 export const updatePackage = async (req, res, next) => {
   try {
-    const { error, value } = updatePackageValidator.validate(req.body);
-    if (error) return res.status(422).json(error);
-
     const pkg = await PackageModel.findById(req.params.id);
     if (!pkg) return res.status(404).json({ message: "Package not found" });
 
-    if (req.auth.role !== "admin" && String(pkg.user) !== String(req.auth.id)) {
-      return res.status(403).json({ message: "Not authorized" });
+    const isAdmin = req.auth?.role?.toLowerCase() === "admin";
+    if (!isAdmin && String(pkg.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized to update this package" });
     }
 
-    Object.assign(pkg, value);
-    await pkg.save();
-
-    res.status(200).json(pkg);
+    Object.assign(pkg, req.body);
+    const updated = await pkg.save();
+    res.status(200).json(updated);
   } catch (error) {
     next(error);
   }
@@ -96,15 +94,15 @@ export const deletePackage = async (req, res, next) => {
     const pkg = await PackageModel.findById(req.params.id);
     if (!pkg) return res.status(404).json({ message: "Package not found" });
 
-    if (req.auth.role !== "admin" && String(pkg.user) !== String(req.auth.id)) {
-      return res.status(403).json({ message: "Not authorized" });
+    const isAdmin = req.auth?.role?.toLowerCase() === "admin";
+    if (!isAdmin && String(pkg.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized to delete this package" });
     }
 
     await pkg.deleteOne();
-
-    res.status(200).json({ message: "Package deleted successfully", pkg });
-  } catch (err) {
-    next(err);
+    res.status(200).json({ message: "Package deleted successfully" });
+  } catch (error) {
+    next(error);
   }
 };
 

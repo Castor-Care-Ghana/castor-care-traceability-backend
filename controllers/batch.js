@@ -57,23 +57,17 @@ export const getBatch = async (req, res, next) => {
 // Update batch
 export const updateBatch = async (req, res, next) => {
   try {
-    const { error, value } = updateBatchValidator.validate(req.body);
-    if (error) return res.status(422).json(error);
-
-    // Always find by ID first
     const batch = await BatchModel.findById(req.params.id);
     if (!batch) return res.status(404).json({ message: "Batch not found" });
 
-    // Authorization: Admin OR Owner
-    if (req.auth.role !== "admin" && String(batch.user) !== String(req.auth.id)) {
-      return res.status(403).json({ message: "Not authorized" });
+    const isAdmin = req.auth?.role?.toLowerCase() === "admin";
+    if (!isAdmin && String(batch.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized to update this batch" });
     }
 
-    // Apply updates
-    Object.assign(batch, value);
-    await batch.save();
-
-    res.status(200).json(batch);
+    Object.assign(batch, req.body);
+    const updated = await batch.save();
+    res.status(200).json(updated);
   } catch (error) {
     next(error);
   }
@@ -84,15 +78,15 @@ export const deleteBatch = async (req, res, next) => {
     const batch = await BatchModel.findById(req.params.id);
     if (!batch) return res.status(404).json({ message: "Batch not found" });
 
-    // Authorization: Admin OR Owner
-    if (req.auth.role !== "admin" && String(batch.user) !== String(req.auth.id)) {
-      return res.status(403).json({ message: "Not authorized" });
+    const isAdmin = req.auth?.role?.toLowerCase() === "admin";
+    if (!isAdmin && String(batch.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized to delete this batch" });
     }
 
     await batch.deleteOne();
-
-    res.status(200).json({ message: "Batch deleted successfully", batch });
+    res.status(200).json({ message: "Batch deleted successfully" });
   } catch (err) {
     next(err);
   }
 };
+
