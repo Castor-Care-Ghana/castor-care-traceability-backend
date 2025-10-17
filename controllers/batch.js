@@ -60,20 +60,20 @@ export const updateBatch = async (req, res, next) => {
     const { error, value } = updateBatchValidator.validate(req.body);
     if (error) return res.status(422).json(error);
 
-    const query =
-      req.auth.role === "admin"
-        ? { _id: req.params.id }
-        : { _id: req.params.id, user: req.auth.id };
+    // Always find by ID first
+    const batch = await BatchModel.findById(req.params.id);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
 
-    const updateBatch = await BatchModel.findOneAndUpdate(query, value, {
-      new: true,
-    });
-
-    if (!updateBatch) {
-      return res.status(404).json("Batch not found or not authorized");
+    // Authorization: Admin OR Owner
+    if (req.auth.role !== "admin" && String(batch.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    res.status(200).json(updateBatch);
+    // Apply updates
+    Object.assign(batch, value);
+    await batch.save();
+
+    res.status(200).json(batch);
   } catch (error) {
     next(error);
   }
@@ -81,17 +81,15 @@ export const updateBatch = async (req, res, next) => {
 
 export const deleteBatch = async (req, res, next) => {
   try {
-    const query =
-      req.auth.role === "admin"
-        ? { _id: req.params.id }
-        : { _id: req.params.id, user: req.auth.id };
+    const batch = await BatchModel.findById(req.params.id);
+    if (!batch) return res.status(404).json({ message: "Batch not found" });
 
-    const batch = await BatchModel.findOneAndDelete(query);
-    if (!batch) {
-      return res
-        .status(404)
-        .json({ message: "Batch not found or not authorized" });
+    // Authorization: Admin OR Owner
+    if (req.auth.role !== "admin" && String(batch.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
+
+    await batch.deleteOne();
 
     res.status(200).json({ message: "Batch deleted successfully", batch });
   } catch (err) {

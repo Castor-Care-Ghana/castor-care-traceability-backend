@@ -70,26 +70,22 @@ export const getPackage = async (req, res, next) => {
   }
 };
 
-// ✅ Update Package
 export const updatePackage = async (req, res, next) => {
   try {
     const { error, value } = updatePackageValidator.validate(req.body);
     if (error) return res.status(422).json(error);
 
-    const query =
-      req.auth.role === "admin"
-        ? { _id: req.params.id }
-        : { _id: req.params.id, user: req.auth.id };
+    const pkg = await PackageModel.findById(req.params.id);
+    if (!pkg) return res.status(404).json({ message: "Package not found" });
 
-    const updatePackage = await PackageModel.findOneAndUpdate(query, value, {
-      new: true,
-    });
-
-    if (!updatePackage) {
-      return res.status(404).json("Package not found or not authorized");
+    if (req.auth.role !== "admin" && String(pkg.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    res.status(200).json(updatePackage);
+    Object.assign(pkg, value);
+    await pkg.save();
+
+    res.status(200).json(pkg);
   } catch (error) {
     next(error);
   }
@@ -97,20 +93,18 @@ export const updatePackage = async (req, res, next) => {
 
 export const deletePackage = async (req, res, next) => {
   try {
-    const query =
-      req.auth.role === "admin"
-        ? { _id: req.params.id }
-        : { _id: req.params.id, user: req.auth.id };
+    const pkg = await PackageModel.findById(req.params.id);
+    if (!pkg) return res.status(404).json({ message: "Package not found" });
 
-    const pkg = await PackageModel.findOneAndDelete(query);
-    if (!pkg) {
-      return res
-        .status(404)
-        .json({ message: "Package not found or not authorized" });
+    if (req.auth.role !== "admin" && String(pkg.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
+    await pkg.deleteOne();
+
     res.status(200).json({ message: "Package deleted successfully", pkg });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
+

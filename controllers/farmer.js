@@ -53,55 +53,38 @@ export const getFarmer = async(req,res, next) => {
 
 export const updateFarmer = async (req, res, next) => {
   try {
-    const { error, value } = updateFarmerValidator.validate({
-      ...req.body,
-      image: req.file?.path,
-    });
-    if (error) {
-      return res.status(422).json(error);
+    const { error, value } = updateFarmerValidator.validate(req.body);
+    if (error) return res.status(422).json(error);
+
+    const farmer = await FarmerModel.findById(req.params.id);
+    if (!farmer) return res.status(404).json({ message: "Farmer not found" });
+
+    if (req.auth.role !== "admin" && String(farmer.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    // Admin can update any farmer, users can only update their own
-    const query =
-      req.auth.role === "admin"
-        ? { _id: req.params.id }
-        : { _id: req.params.id, user: req.auth.id };
+    Object.assign(farmer, value);
+    await farmer.save();
 
-    const updateFarmer = await FarmerModel.findOneAndUpdate(query, value, {
-      new: true,
-    });
-
-    if (!updateFarmer) {
-      return res.status(404).json("Farmer not found or not authorized");
-    }
-
-    res.status(200).json(updateFarmer);
+    res.status(200).json(farmer);
   } catch (error) {
     next(error);
   }
 };
 
-
 export const deleteFarmer = async (req, res, next) => {
   try {
-    // Admin can delete any farmer, users only their own
-    const query =
-      req.auth.role === "admin"
-        ? { _id: req.params.id }
-        : { _id: req.params.id, user: req.auth.id };
+    const farmer = await FarmerModel.findById(req.params.id);
+    if (!farmer) return res.status(404).json({ message: "Farmer not found" });
 
-    const farmer = await FarmerModel.findOneAndDelete(query);
-
-    if (!farmer) {
-      return res
-        .status(404)
-        .json({ message: "Farmer not found or not authorized" });
+    if (req.auth.role !== "admin" && String(farmer.user) !== String(req.auth.id)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    res
-      .status(200)
-      .json({ message: "Farmer deleted successfully", farmer });
-  } catch (error) {
-    next(error);
+    await farmer.deleteOne();
+
+    res.status(200).json({ message: "Farmer deleted successfully", farmer });
+  } catch (err) {
+    next(err);
   }
 };
