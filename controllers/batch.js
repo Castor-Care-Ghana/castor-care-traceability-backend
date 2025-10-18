@@ -57,6 +57,8 @@ export const getBatch = async (req, res, next) => {
 // Update batch
 export const updateBatch = async (req, res, next) => {
   try {
+    const { error, value } = updateBatchValidator.validate(req.body);
+    if (error) return res.status(422).json(error);  
     const batch = await BatchModel.findById(req.params.id);
     if (!batch) return res.status(404).json({ message: "Batch not found" });
 

@@ -64,6 +64,8 @@ export const getScan = async (req, res, next) => {
 
 export const updateScan = async (req, res, next) => {
   try {
+    const { error, value } = updateScanValidator.validate(req.body);
+    if (error) return res.status(422).json(error);
     const scan = await ScanModel.findById(req.params.id);
     if (!scan) return res.status(404).json({ message: "Scan not found" });
 

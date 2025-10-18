@@ -53,6 +53,8 @@ export const getFarmer = async(req,res, next) => {
 
 export const updateFarmer = async (req, res, next) => {
   try {
+    const { error, value } = updateFarmerValidator.validate(req.body);
+    if (error) return res.status(422).json(error);
     const farmer = await FarmerModel.findById(req.params.id);
     if (!farmer) return res.status(404).json({ message: "Farmer not found" });
 
