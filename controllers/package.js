@@ -1,5 +1,5 @@
 import { PackageModel } from "../models/package.js";
-// import { BatchModel } from "../models/batch.js";
+import { BatchModel } from "../models/batch.js";
 import {
   createPackageValidator,
   updatePackageValidator,
@@ -30,7 +30,7 @@ export const createPackage = async (req, res, next) => {
     pkg.qrCode = qrData; // or store the image if preferred
     await pkg.save();
 
-     // Step 3: Update batch quantity (subtract package weight)
+     // Step 4: Update batch quantity (subtract package weight)
     const batch = await BatchModel.findById(pkg.batch);
     if (batch) {
       const newQuantity = (batch.quantity || 0) - (pkg.weight || 0);
