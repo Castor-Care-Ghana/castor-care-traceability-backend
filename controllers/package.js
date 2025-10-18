@@ -30,6 +30,14 @@ export const createPackage = async (req, res, next) => {
     pkg.qrCode = qrData; // or store the image if preferred
     await pkg.save();
 
+     // Step 3: Update batch quantity (subtract package weight)
+    const batch = await BatchModel.findById(pkg.batch);
+    if (batch) {
+      const newQuantity = (batch.quantity || 0) - (pkg.weight || 0);
+      batch.quantity = newQuantity < 0 ? 0 : newQuantity;
+      await batch.save();
+    }
+
     res.status(201).json({
       message: "Package created successfully",
       data: pkg,
@@ -49,7 +57,8 @@ export const getPackages = async (req, res, next) => {
       .limit(Number(limit))
       .skip(Number(skip))
       .populate("user", "-password")
-      .populate("batch");
+      .populate("batch")
+      .populate("farmer");
 
     res.status(200).json(packages);
   } catch (err) {
