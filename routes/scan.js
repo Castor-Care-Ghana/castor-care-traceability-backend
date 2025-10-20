@@ -4,7 +4,7 @@ import { isAuthenticated } from "../middlewares/authenticator.js";
 
 const scanRouter = Router();
 
-scanRouter.post('/scans', isAuthenticated, createScan);
+scanRouter.post('/scans', createScan);
 scanRouter.get('/scans', isAuthenticated, getScans);
 scanRouter.get('/scans/:id', isAuthenticated, getScan);
 scanRouter.patch('/scans/:id', isAuthenticated, updateScan);
