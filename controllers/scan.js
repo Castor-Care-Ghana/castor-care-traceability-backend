@@ -7,40 +7,26 @@ import {
 
 export const createScan = async (req, res, next) => {
   try {
-    const { error, value } = createScanValidator.validate(req.body);
-    if (error) return res.status(422).json(error);
+    console.log("🧩 AUTH:", req.auth); // Debug
+    const { package: packageId, location, status } = req.body;
 
-    // ✅ Check if package exists
-    const pkg = await PackageModel.findById(value.package);
-    if (!pkg) {
-      return res.status(404).json({ message: "Package not found" });
-    }
+    const pkg = await PackageModel.findById(packageId);
+    if (!pkg) return res.status(404).json({ message: "Package not found" });
 
-    // ✅ Attach user if authenticated
-    if (req.auth?.id) {
-      value.user = req.auth.id;
-    }
-
-    // ✅ Prevent anonymous users from setting or changing status
-    if (!req.auth?.id && value.status) {
-      delete value.status; // ignore any status field from anonymous request
-    }
-
-    // ✅ Create scan
-    const scan = await ScanModel.create(value);
-
-    // ✅ If authenticated user and package exists — update package status
-    if (req.auth?.id && value.status) {
-      pkg.status = value.status;
-      await pkg.save();
-    }
+    const scan = await ScanModel.create({
+      package: packageId,
+      location,
+      status,
+      user: req.auth?.id || req.auth?._id || null,
+    });
 
     res.status(201).json({
       message: "Scan recorded successfully",
       scan,
     });
   } catch (error) {
-    next(error);
+    console.error("❌ createScan error:", error.message);
+    res.status(500).json({ message: "Failed to record scan" });
   }
 };
 

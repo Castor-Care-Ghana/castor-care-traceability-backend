@@ -3,36 +3,19 @@ import { toJSON } from "@reis/mongoose-to-json";
 
 const ScanSchema = new Schema(
   {
-    package: {
-      type: Schema.Types.ObjectId,
-      ref: "Package",
-      required: true,
-    },
-    scannedBy: {
-      type: String,
-      required: true,
-      default: "Anonymous (guest)",
-    },
-    location: {
-      type: String, // GhanaPost GPS or coordinates
-      trim: true,
-      required: false,
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: false, // Anonymous scans allowed
-    },
+    package: { type: Schema.Types.ObjectId, ref: "Package", required: true },
+    scannedBy: { type: String, required: true, default: "Anonymous (guest)" },
+    location: { type: String, trim: true },
+    user: { type: Schema.Types.ObjectId, ref: "User" },
     status: {
       type: String,
       enum: ["available", "sold", "in-transit"],
       default: "available",
-      required: false,
     },
     history: [
       {
         at: { type: Date, default: Date.now },
-        by: { type: Schema.Types.ObjectId, ref: "User", required: false },
+        by: { type: Schema.Types.ObjectId, ref: "User" },
         byLabel: { type: String },
         oldStatus: { type: String },
         oldLocation: { type: String },
@@ -45,25 +28,29 @@ const ScanSchema = new Schema(
 
 ScanSchema.plugin(toJSON);
 
+// 🧠 Automatically assign scannedBy label based on user info
 ScanSchema.pre("save", async function (next) {
-  if (this.isNew && this.user && (!this.scannedBy || this.scannedBy === "Anonymous")) {
-    try {
+  try {
+    if (this.user) {
       const { UserModel } = await import("./user.js");
-      const user = await UserModel.findById(this.user).select("fullName role");
+      const user = await UserModel.findById(this.user).select(
+        "fullName userName name role"
+      );
 
       if (user) {
+        const name = user.fullName || user.userName || user.name || "Unnamed";
         const role = user.role?.toLowerCase() || "user";
-        const name = user.fullName || "Unnamed";
         this.scannedBy = `${name} (${role})`;
+      } else {
+        this.scannedBy = "Anonymous (guest)";
       }
-    } catch (err) {
-      console.error("Error assigning scannedBy:", err.message);
-      this.scannedBy = "Anonymous";
+    } else {
+      this.scannedBy = "Anonymous (guest)";
     }
-  } else if (!this.user && (!this.scannedBy || this.scannedBy === "Anonymous")) {
+  } catch (err) {
+    console.error("❌ Error setting scannedBy:", err.message);
     this.scannedBy = "Anonymous (guest)";
   }
-
   next();
 });
 

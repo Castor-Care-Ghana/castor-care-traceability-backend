@@ -7,6 +7,12 @@ export const isAuthenticated = expressjwt({
     algorithms: [ 'HS256']
 });
 
+export const optionalAuth = expressjwt({
+  secret: process.env.JWT_PRIVATE_KEY,
+  algorithms: ["HS256"],
+  credentialsRequired: false, // ⚡ allows guest users too
+});
+
 // export const hasPermission = (action) => {
 //     return async (req, res, next) => {
 //         try {
