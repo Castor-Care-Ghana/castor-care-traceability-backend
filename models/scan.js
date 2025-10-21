@@ -9,7 +9,7 @@ const ScanSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: "User" },
     status: {
       type: String,
-      enum: ["available", "sold", "in-transit"],
+      enum: ["available", "sold", "in-transit", "delivered", "returned"],
       default: "available",
     },
     history: [
