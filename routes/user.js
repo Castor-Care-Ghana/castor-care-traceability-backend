@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProfile, getAllProfile, logInUser, logOutUser, registerUser, updateProfile, forgotPassword, resetPassword, getUserFarmers } from "../controllers/user.js";
+import { getProfile, getAllProfile, logInUser, logOutUser, registerUser, updateProfile, forgotPassword, resetPassword, getUserFarmers, deleteUser, restoreUser } from "../controllers/user.js";
 import { isAuthenticated } from "../middlewares/authenticator.js";
 import { userAvatarUpload } from "../middlewares/uploads.js";
 
@@ -17,8 +17,6 @@ userRouter.get('/users', isAuthenticated, getAllProfile);
 
 userRouter.post('/users/logout', isAuthenticated, logOutUser);
 
-
-
 userRouter.patch('/users/me', isAuthenticated, userAvatarUpload.single('avatar'), updateProfile);
 
 userRouter.post('/users/forgot-password', forgotPassword);
@@ -26,6 +24,10 @@ userRouter.post('/users/forgot-password', forgotPassword);
 userRouter.post('/users/reset-password/:token', resetPassword);
 
 userRouter.get('/users/me/farmers', isAuthenticated, getUserFarmers);
+
+userRouter.delete('/users/:id', isAuthenticated, deleteUser);
+
+userRouter.patch('/users/:id/restore', isAuthenticated, restoreUser);
 
 
 export default userRouter;

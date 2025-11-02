@@ -206,3 +206,26 @@ export const getUserFarmers = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    user.deleted = true;
+    await user.save();
+    res.json({ message: "User deleted", user });
+  } catch (error) {
+    next(error);
+  }
+}
+export const restoreUser = async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    user.deleted = false;
+    await user.save();
+    res.json({ message: "User restored", user });
+  } catch (error) {
+    next(error);
+  }
+};
