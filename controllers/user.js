@@ -13,6 +13,7 @@ import { getChannel } from "../utils/rabbitmq.js";
 import { registerEmailTemplate } from "../utils/emailTemplate.js";
 
 // ✅ Register User
+// ✅ Register User
 export const registerUser = async (req, res, next) => {
   try {
     const { error, value } = registerUserValidator.validate(req.body);
@@ -27,40 +28,49 @@ export const registerUser = async (req, res, next) => {
 
     const hashedPassword = bcrypt.hashSync(value.password, 10);
 
+    // ✅ Detect if request is from an authenticated admin
+    let createdBy = null;
+    if (req.auth && req.auth.role === "admin") {
+      createdBy = req.auth.id;
+    }
+
     const user = await UserModel.create({
       ...value,
       password: hashedPassword,
+      createdBy, // null if self-registration, admin ID if admin-created
     });
 
-         const emailContent = `
-                <p>Hi ${user.name}</p>
-                            <p>Account created successfully on ${new Date().toDateString()} as a ${user.role}.</p>
-                            <p>LogIn to interract with us. Click the link below.</p>
-                            <a style="font-size: 14px;" href="${process.env.CLIENT_URL}/login">${process.env.CLIENT_URL}/login</a>`
-                // Send professional a confirmation email
-                // await mailTransporter.sendMail({
-                //     from: `Castor Care Ghana <${process.env.EMAIL_USER}>`,
-                //     to: value.email,
-                //     subject: "User Registration",
-                //     replyTo: 'info@castorcareghana.com',
-                //     html: registerEmailTemplate(emailContent)
-                // });
+    const emailContent = `
+      <p>Hi ${user.name}</p>
+      <p>Your account was successfully created on ${new Date().toDateString()} as a ${user.role}.</p>
+      <p>Login to interact with us:</p>
+      <a style="font-size: 14px;" href="${process.env.CLIENT_URL}/login">${process.env.CLIENT_URL}/login</a>`;
+
+    // Send email via queue
     const channel = getChannel();
     await channel.assertQueue("emailQueue");
     channel.sendToQueue(
       "emailQueue",
-      Buffer.from(JSON.stringify({
-        to: value.email,
-        subject: "User Registration",
-        html: registerEmailTemplate(emailContent),
-      }))
+      Buffer.from(
+        JSON.stringify({
+          to: value.email,
+          subject: "User Registration",
+          html: registerEmailTemplate(emailContent),
+        })
+      )
     );
 
-    res.status(201).json({ message: "Registered user!", user });
+    res.status(201).json({
+      message: createdBy
+        ? "User registered by admin successfully!"
+        : "Registered successfully!",
+      user,
+    });
   } catch (error) {
     next(error);
   }
 };
+
 
 // ✅ Login User
 export const logInUser = async (req, res, next) => {

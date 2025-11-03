@@ -2,7 +2,7 @@ import Joi from "joi";
 
 export const registerUserValidator = Joi.object({
     name: Joi.string().required(),
-    email: Joi.string().email().required(),
+    email: Joi.string().email().required().valid(),
     password: Joi.string().required(),
     contact: Joi.string(),
     role: Joi.string().valid('user', 'admin')
