@@ -19,6 +19,7 @@ export const updateUserValidator =Joi.object({
     avatar: Joi.string(),
     password: Joi.string(),
     contact: Joi.string(),
+    role: Joi.string().valid('user', 'admin'),
 });
 
 export  const forgotPasswordValidator = Joi.object({
