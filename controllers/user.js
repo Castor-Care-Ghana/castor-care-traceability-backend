@@ -38,6 +38,7 @@ export const registerUser = async (req, res, next) => {
       ...value,
       password: hashedPassword,
       createdBy, // null if self-registration, admin ID if admin-created
+
     });
 
     const emailContent = `
@@ -106,7 +107,7 @@ export const logInUser = async (req, res, next) => {
 export const getProfile = async (req, res, next) => {
   try {
     const userId = req.params.id || req.auth.id;
-    const user = await UserModel.findById(userId).select("-password");
+    const user = await UserModel.findById(userId).select("-password").populate("createdBy", "name email");
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (error) {
@@ -117,7 +118,7 @@ export const getProfile = async (req, res, next) => {
 // ✅ Get All Users (admin only ideally)
 export const getAllProfile = async (req, res, next) => {
   try {
-    const users = await UserModel.find().select("-password");
+    const users = await UserModel.find().select("-password").populate("createdBy", "name email");
     res.json(users);
   } catch (error) {
     next(error);
@@ -129,16 +130,20 @@ export const logOutUser = (req, res, next) => {
   res.json({ message: "User logged out" });
 };
 
-// ✅ Update Profile
+// ✅ Update Profile (self or by ID)
 export const updateProfile = async (req, res, next) => {
   try {
     const { error, value } = updateUserValidator.validate(req.body);
     if (error) return res.status(422).json(error);
 
+    // if avatar uploaded
     if (req.file) value.avatar = req.file.path;
 
+    // ✅ Determine which user to update
+    const userId = req.params.id || req.auth.id;
+
     const updatedUser = await UserModel.findByIdAndUpdate(
-      req.auth.id,
+      userId,
       value,
       { new: true }
     ).select("-password");
@@ -146,11 +151,16 @@ export const updateProfile = async (req, res, next) => {
     if (!updatedUser)
       return res.status(404).json({ message: "User not found" });
 
-    res.json({ message: "Profile updated", user: updatedUser });
+    return res.json({
+      message: "Profile updated",
+      user: updatedUser,
+    });
+
   } catch (error) {
     next(error);
   }
 };
+
 
 // ✅ Forgot Password
 export const forgotPassword = async (req, res, next) => {
