@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProfile, getAllProfile, logInUser, logOutUser, registerUser, updateProfile, forgotPassword, resetPassword, getUserFarmers, deleteUser, restoreUser } from "../controllers/user.js";
+import { getProfile, getAllProfile, logInUser, logOutUser, registerUser, updateProfile, forgotPassword, resetPassword, getUserFarmers, deleteUser, removeUser, restoreUser } from "../controllers/user.js";
 import { isAuthenticated, optionalAuth } from "../middlewares/authenticator.js";
 import { userAvatarUpload } from "../middlewares/uploads.js";
 
@@ -29,6 +29,8 @@ userRouter.post('/users/reset-password/:token', resetPassword);
 userRouter.get('/users/me/farmers', isAuthenticated, getUserFarmers);
 
 userRouter.delete('/users/:id', isAuthenticated, deleteUser);
+
+userRouter.delete('/users/:id/remove', isAuthenticated, removeUser);
 
 userRouter.patch('/users/:id/restore', isAuthenticated, restoreUser);
 

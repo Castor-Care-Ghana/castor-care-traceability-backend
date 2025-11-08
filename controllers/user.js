@@ -238,6 +238,16 @@ export const deleteUser = async (req, res, next) => {
     next(error);
   }
 }
+
+export const removeUser = async (req, res, next) => {
+  try {
+    const user = await UserModel.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ message: "User removed", user });
+  } catch (error) {
+    next(error);
+  }
+};  
 export const restoreUser = async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.params.id);
