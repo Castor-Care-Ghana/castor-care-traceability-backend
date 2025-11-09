@@ -137,7 +137,12 @@ export const updateProfile = async (req, res, next) => {
     if (error) return res.status(422).json(error);
 
     // if avatar uploaded
-    if (req.file) value.avatar = req.file.path;
+    if (req.file) {value.avatar = req.file.path;}
+
+    // ✅ if "avatar": "" --> remove avatar
+   else if (!req.file && value.avatar === "") {
+      value.avatar = null;
+    }
 
     // ✅ Determine which user to update
     const userId = req.params.id || req.auth.id;
